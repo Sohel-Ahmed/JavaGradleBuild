@@ -1,32 +1,28 @@
-apply plugin: 'java'
-
-repositories {
-    mavenCentral()
-}
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
-dependencies {
-    compile "joda-time:joda-time:2.2"
-    testCompile "junit:junit:4.12"
-}
-jar {
-    baseName = 'gs-gradle'
-    version =  '0.1.0'
-}
 buildscript {
     repositories {
-        jcenter()
-        
+         jcenter()
     }
     dependencies {
         //Check for the latest version here: http://plugins.gradle.org/plugin/com.jfrog.artifactory
         classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4+"
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:1.4.3.RELEASE"
     }
 }
+version = "${appVersion}"
+group = 'com.demo.test'
 
 allprojects {
-    apply plugin: "com.jfrog.artifactory"
+     apply plugin: "com.jfrog.artifactory"
+}
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'maven-publish'
+apply plugin: 'org.springframework.boot'
+
+jar {
+    baseName = 'hello-service'
+    version =  "${appVersion}"
 }
 
 artifactory {
@@ -34,16 +30,44 @@ artifactory {
     publish {
         repository {
             repoKey = 'gradle-dev-local'
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
             maven = true
-            
+
+        }
+        defaults {
+            publications ('mavenJava')
         }
     }
     resolve {
         repository {
             repoKey = 'gradle-dev'
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
             maven = true
-            
+
         }
     }
 }
 
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+// repositories {
+//     mavencentral()
+// }
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web")
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+    compile "joda-time:joda-time:2.2"
+
+}
